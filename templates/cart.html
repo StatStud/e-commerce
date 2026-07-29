@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Cart — {{ setting('store_name') }}{% endblock %}
+{% block content %}
+<section class="container section">
+  <h1 class="chrome-text">Your cart</h1>
+  {% if lines %}
+  <div class="cart-layout">
+    <div class="cart-lines">
+      {% for l in lines %}
+      <div class="cart-line">
+        <a class="cart-thumb" href="{{ url_for('product', slug=l.p.slug) }}">
+          {% if l.img %}<img src="{{ url_for('pimg', filename=l.img) }}" alt="">{% endif %}
+        </a>
+        <div class="cart-line-info">
+          <a href="{{ url_for('product', slug=l.p.slug) }}"><strong>{{ l.p.name }}</strong></a>
+          {% if l.opts %}
+          <p class="muted small">{% for k,v in l.opts.items() %}{{ k }}: {{ v }}{{ " · " if not loop.last }}{% endfor %}</p>
+          {% endif %}
+          <p class="price">{{ l.p.price|money }}</p>
+        </div>
+        <form class="cart-line-qty" method="post" action="{{ url_for('cart_update') }}">
+          <input type="hidden" name="key" value="{{ l.key }}">
+          <input type="number" name="qty" value="{{ l.qty }}" min="0" max="99" onchange="this.form.submit()">
+        </form>
+        <div class="cart-line-total">{{ l.line_total|money }}</div>
+        <form method="post" action="{{ url_for('cart_remove') }}">
+          <input type="hidden" name="key" value="{{ l.key }}">
+          <button class="x-btn" title="Remove">✕</button>
+        </form>
+      </div>
+      {% endfor %}
+    </div>
+    <aside class="summary">
+      <h3>Order summary</h3>
+      <div class="sum-row"><span>Subtotal</span><span>{{ subtotal|money }}</span></div>
+      <div class="sum-row"><span>Shipping</span><span>{{ 'Free' if shipping == 0 else shipping|money }}</span></div>
+      {% if shipping > 0 %}
+      <p class="muted small">Free shipping on orders over ${{ setting('free_ship_threshold') }}.</p>
+      {% endif %}
+      <div class="sum-row total"><span>Total</span><span>{{ total|money }}</span></div>
+      <a class="btn btn-primary btn-lg btn-block" href="{{ url_for('checkout') }}">Check out</a>
+      <a class="link center" href="{{ url_for('shop') }}">Keep shopping</a>
+    </aside>
+  </div>
+  {% else %}
+  <div class="empty">
+    <p>Your cart is empty. <a href="{{ url_for('shop') }}">Go find something loud →</a></p>
+  </div>
+  {% endif %}
+</section>
+{% endblock %}
