@@ -1,0 +1,22 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<div class="admin-head">
+  <h1>Products</h1>
+  <a class="btn btn-primary" href="{{ url_for('admin_product_edit') }}">+ New product</a>
+</div>
+<table class="admin-table">
+  <tr><th></th><th>Name</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th><th></th></tr>
+  {% for p in products %}
+  <tr>
+    <td class="thumb-cell">{% if p.img %}<img src="{{ url_for('pimg', filename=p.img) }}" alt="">{% endif %}</td>
+    <td><a href="{{ url_for('admin_product_edit', pid=p.id) }}"><strong>{{ p.name }}</strong></a><br>
+        <span class="muted small">/product/{{ p.slug }}</span></td>
+    <td>{{ p.category }}</td>
+    <td>{{ p.price|money }}</td>
+    <td class="{{ 'warn-text' if p.stock <= 5 }}">{{ p.stock }}</td>
+    <td>{{ 'Live' if p.active else 'Hidden' }}{{ ' · Featured' if p.featured }}</td>
+    <td><a class="btn btn-ghost btn-sm" href="{{ url_for('admin_product_edit', pid=p.id) }}">Edit</a></td>
+  </tr>
+  {% endfor %}
+</table>
+{% endblock %}
