@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Store admin — {{ setting('store_name') }}{% endblock %}
+{% block content %}
+<section class="container section auth">
+  <div class="auth-card">
+    <h1 class="chrome-text">Store admin</h1>
+    <p class="muted small">Owner access only. Full email-based admin login comes later — for now, enter the admin password.</p>
+    <form method="post">
+      <label>Admin password<input type="password" name="password" required autofocus></label>
+      <button class="btn btn-primary btn-block">Enter dashboard</button>
+    </form>
+  </div>
+</section>
+{% endblock %}
