@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Checkout — {{ setting('store_name') }}{% endblock %}
+{% block content %}
+<section class="container section">
+  <h1 class="chrome-text">Checkout</h1>
+  {% if not user %}
+  <p class="muted">Checking out as a guest. <a href="{{ url_for('login', next='/checkout') }}">Sign in</a> or <a href="{{ url_for('register') }}">create an account</a> to track orders.</p>
+  {% endif %}
+  <div class="cart-layout">
+    <form method="post" class="checkout-form">
+      <h3>Contact</h3>
+      <label>Email *<input type="email" name="email" required value="{{ form.get('email','') }}"></label>
+      <label>Full name *<input name="name" required value="{{ form.get('name','') }}"></label>
+      <label>Phone<input name="phone" value="{{ form.get('phone','') }}"></label>
+      <h3>Shipping address</h3>
+      <label>Street address *<input name="address" required value="{{ form.get('address','') }}"></label>
+      <div class="form-row">
+        <label>City *<input name="city" required value="{{ form.get('city','') }}"></label>
+        <label>State *<input name="state" required maxlength="2" placeholder="VA" value="{{ form.get('state','') }}"></label>
+        <label>ZIP *<input name="zip" required value="{{ form.get('zip','') }}"></label>
+      </div>
+      <h3>Payment <span class="test-pill">Test mode</span></h3>
+      <p class="muted small">Payments aren't live yet — any card details work and no charge is made.</p>
+      <label>Name on card<input name="card_name" placeholder="Jane Ballplayer"></label>
+      <label>Card number<input name="card_number" inputmode="numeric" placeholder="4242 4242 4242 4242"></label>
+      <div class="form-row">
+        <label>Expiry<input name="card_exp" placeholder="MM/YY"></label>
+        <label>CVC<input name="card_cvc" placeholder="123"></label>
+      </div>
+      <button class="btn btn-primary btn-lg btn-block" type="submit">Place order — {{ total|money }}</button>
+    </form>
+    <aside class="summary">
+      <h3>Order summary</h3>
+      {% for l in lines %}
+      <div class="sum-row small-line">
+        <span>{{ l.qty }}× {{ l.p.name }}{% if l.opts %} <em class="muted">({% for k,v in l.opts.items() %}{{ v }}{{ ", " if not loop.last }}{% endfor %})</em>{% endif %}</span>
+        <span>{{ l.line_total|money }}</span>
+      </div>
+      {% endfor %}
+      <div class="sum-row"><span>Subtotal</span><span>{{ subtotal|money }}</span></div>
+      <div class="sum-row"><span>Shipping</span><span>{{ 'Free' if shipping == 0 else shipping|money }}</span></div>
+      <div class="sum-row total"><span>Total</span><span>{{ total|money }}</span></div>
+    </aside>
+  </div>
+</section>
+{% endblock %}
