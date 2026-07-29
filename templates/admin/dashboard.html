@@ -1,0 +1,25 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<h1>Dashboard</h1>
+<div class="stat-grid">
+  <div class="stat"><span class="stat-num">{{ stats.orders }}</span><span>Orders</span></div>
+  <div class="stat"><span class="stat-num">{{ stats.revenue|money }}</span><span>Revenue (test)</span></div>
+  <div class="stat"><span class="stat-num">{{ stats.active }}/{{ stats.products }}</span><span>Active products</span></div>
+  <div class="stat"><span class="stat-num">{{ stats.users }}</span><span>Customers</span></div>
+  <div class="stat {{ 'stat-warn' if stats.low_stock }}"><span class="stat-num">{{ stats.low_stock }}</span><span>Low stock (≤5)</span></div>
+</div>
+<h2>Recent orders</h2>
+{% if recent %}
+<table class="admin-table">
+  <tr><th>Order</th><th>Customer</th><th>Total</th><th>Status</th><th>Date</th></tr>
+  {% for o in recent %}
+  <tr>
+    <td><a href="{{ url_for('admin_order_detail', oid=o.id) }}">{{ o.order_no }}</a></td>
+    <td>{{ o.name }}</td><td>{{ o.total|money }}</td>
+    <td><span class="status-pill">{{ o.status }}</span></td>
+    <td>{{ o.created[:16] }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}<p class="muted">No orders yet — place a test order on the storefront to see the flow.</p>{% endif %}
+{% endblock %}
