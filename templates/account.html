@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Account — {{ setting('store_name') }}{% endblock %}
+{% block content %}
+<section class="container section">
+  <div class="account-head">
+    <h1 class="chrome-text">Hey{{ ', ' + user.name if user.name else '' }}!</h1>
+    <a class="btn btn-ghost" href="{{ url_for('logout') }}">Sign out</a>
+  </div>
+  <p class="muted">{{ user.email }}</p>
+  <h2 style="margin-top:32px">Your orders</h2>
+  {% if orders %}
+    {% for o in orders %}
+    <div class="order-card">
+      <div class="order-card-head">
+        <strong>{{ o.order_no }}</strong>
+        <span class="status-pill">{{ o.status }}</span>
+        <span class="muted small">{{ o.created[:10] }}</span>
+        <span class="price">{{ o.total|money }}</span>
+      </div>
+      <p class="muted small">
+        {% for it in o.parsed %}{{ it.qty }}× {{ it.name }}{{ " · " if not loop.last }}{% endfor %}
+      </p>
+    </div>
+    {% endfor %}
+  {% else %}
+  <div class="empty"><p>No orders yet. <a href="{{ url_for('shop') }}">Change that →</a></p></div>
+  {% endif %}
+</section>
+{% endblock %}
