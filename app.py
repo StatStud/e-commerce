@@ -143,13 +143,13 @@ def init_db():
 
 def seed_products(conn):
     def add(slug, name, category, price, compare, desc, options, badge, stock,
-            featured, sort, images):
+            featured, sort, images, size_chart="none"):
         cur = conn.execute(
             """INSERT INTO products(slug,name,category,price,compare_price,description,
-               options,badge,stock,active,featured,sort)
-               VALUES(?,?,?,?,?,?,?,?,?,1,?,?)""",
+               options,badge,stock,active,featured,sort,size_chart)
+               VALUES(?,?,?,?,?,?,?,?,?,1,?,?,?)""",
             (slug, name, category, price, compare, desc, json.dumps(options),
-             badge, stock, featured, sort))
+             badge, stock, featured, sort, size_chart))
         pid = cur.lastrowid
         for i, fn in enumerate(images):
             conn.execute("INSERT INTO product_images(product_id,filename,sort) VALUES(?,?,?)",
@@ -257,6 +257,38 @@ def seed_products(conn):
         "Signature", 60, 1, 6,
         ["products/sunglasses_1.jpg", "products/sunglasses_2.jpg", "products/sunglasses_3.jpg"])
 
+    # Grand Slam Glasses — one image folder per colorway (static/img/glasses/NN_slug/)
+    # with front / angled / side shots. The product page shows only the selected
+    # colorway's photos, plus the shared fit + adjustable-temple images that are
+    # appended via size_chart='glasses' (same idea as the mitt size charts).
+    gs_dirs = [
+        "01_blue-orange", "02_gold-blue", "03_black", "04_pink-green-white",
+        "05_light-blue-silver", "06_pink-yellow-black", "07_pink-yellow-white",
+        "08_blue-red", "09_pink-orange-silver", "10_black-red",
+        "11_yellow-blue-white", "12_gold-orange", "13_yellow-blue-yellow",
+        "14_orange-red-black", "15_orange-green-black", "16_yellow-orange-red",
+        "17_yellow-blue-green", "18_purple-green-black", "19_orange-green-lime",
+        "20_silver-black", "21_gold-lime", "22_blue-purple-red", "23_silver-white",
+        "24_yellow-orange-pink", "25_blue-purple-black", "26_blue-green-purple",
+        "27_black-gold"]
+
+    def gs_name(d):
+        parts = d.split("_", 1)[1].replace("light-blue", "light blue").split("-")
+        return " / ".join(p.title() for p in parts)
+
+    add("grand-slam-glasses", "Grand Slam Glasses", "Accessories", 19.99, None,
+        "Full-shield sport sunglasses built for the diamond. Pick your colorway and "
+        "the photos update to show that exact pair from the front, angled and side "
+        "— what you see is what ships.\n\n"
+        "• 27 team colorways in stock\n• Adjustable temple arms for a custom fit\n"
+        "• One size fits most — youth and adult (see fit chart in photos)\n"
+        "• Lightweight frame with full-coverage shield lens",
+        [{"name": "Colorway", "choices": [gs_name(d) for d in gs_dirs]}],
+        "New drop", 108, 1, 6,
+        [f"glasses/{d}/{f}" for d in gs_dirs
+         for f in ("01_front.jpg", "02_angled.jpg", "03_side.jpg")],
+        size_chart="glasses")
+
     add("rhinestone-tumbler", "Rhinestone 40oz Tumbler", "Dugout", 44.99, 54.99,
         "A 40oz stainless tumbler covered corner-to-corner in rhinestones, with "
         "baseball or softball stitching running up the side. Double-wall insulated "
@@ -358,7 +390,7 @@ def save_optimized_image(file, base_name):
         file.save(os.path.join(UPLOAD_DIR, fn))
         return fn
 
-SIZE_CHART_KINDS = ("none", "youth", "adult", "both")
+SIZE_CHART_KINDS = ("none", "youth", "adult", "both", "glasses")
 
 def _chart_file(name):
     for ext in ("jpg", "jpeg", "png", "webp"):
@@ -371,8 +403,12 @@ def size_chart_images(kind):
     """Relative /pimg/ paths for the size chart image(s) a product should show.
     Looks in static/img/size_charts/ for youth.*, adult.*, and both.* —
     'both' prefers a single combined chart (both.*) and falls back to showing
-    youth + adult separately. Missing files are skipped, never breaking a page."""
+    youth + adult separately. 'glasses' shows the sunglasses info pair
+    (glasses_fit.* + glasses_temple.*). Missing files are skipped, never
+    breaking a page."""
     kind = kind or "none"
+    if kind == "glasses":
+        return [f for f in (_chart_file("glasses_fit"), _chart_file("glasses_temple")) if f]
     if kind == "both":
         combined = _chart_file("both")
         if combined:
@@ -482,13 +518,19 @@ def product(slug):
     if not p:
         abort(404)
     imgs = [dict(r) for r in product_images(p["id"])]
+    # Variant-aware gallery: images stored as <group>/<NN_variant>/<file>.jpg
+    # (e.g. glasses/01_blue-orange/01_front.jpg) are tagged with their variant
+    # key so the front-end can show only the selected colorway's photos.
+    for img in imgs:
+        parts = img["filename"].split("/")
+        img["variant"] = re.sub(r"^\d+_", "", parts[1]) if len(parts) == 3 else ""
     # append the product's size chart(s) to the gallery automatically
     try:
         chart_kind = p["size_chart"]
     except (IndexError, KeyError):
         chart_kind = "none"
     for rel in size_chart_images(chart_kind):
-        imgs.append({"id": None, "filename": rel, "sort": 9999})
+        imgs.append({"id": None, "filename": rel, "sort": 9999, "variant": ""})
     opts = parse_options(p)
     related = get_db().execute(
         "SELECT * FROM products WHERE active=1 AND id!=? AND category=? ORDER BY sort LIMIT 4",

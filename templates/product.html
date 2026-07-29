@@ -18,7 +18,8 @@
       {% if images|length > 1 %}
       <div class="gallery-thumbs">
         {% for img in images %}
-        <button class="thumb {{ 'on' if loop.first }}" data-src="{{ url_for('pimg', filename=img.filename) }}">
+        <button class="thumb {{ 'on' if loop.first }}" data-src="{{ url_for('pimg', filename=img.filename) }}"
+                data-variant="{{ img.variant or '' }}">
           <img src="{{ url_for('pimg', filename=img.filename) }}" alt="" loading="lazy">
         </button>
         {% endfor %}

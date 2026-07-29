@@ -11,6 +11,42 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
+  // variant-aware gallery: when a product's photos are grouped by colorway
+  // (thumbs carry data-variant), show only the selected colorway's photos.
+  // Thumbs with an empty data-variant (size charts / info images) always show.
+  (function () {
+    var thumbs = Array.prototype.slice.call(document.querySelectorAll('.thumb[data-variant]'));
+    var keyed = thumbs.filter(function (t) { return t.dataset.variant; });
+    if (!keyed.length) return;
+    var slug = function (s) {
+      return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+    };
+    var keys = {};
+    keyed.forEach(function (t) { keys[t.dataset.variant] = true; });
+    // find the option select whose choices map onto the variant keys
+    var sel = Array.prototype.slice.call(document.querySelectorAll('#buyForm select'))
+      .find(function (s) {
+        return Array.prototype.some.call(s.options, function (o) { return keys[slug(o.value)]; });
+      });
+    if (!sel) return;
+    var apply = function () {
+      var k = slug(sel.value), first = null;
+      thumbs.forEach(function (t) {
+        var show = !t.dataset.variant || t.dataset.variant === k;
+        t.style.display = show ? '' : 'none';
+        if (show && !first) first = t;
+      });
+      if (first) {
+        thumbs.forEach(function (t) { t.classList.remove('on'); });
+        first.classList.add('on');
+        var main = document.getElementById('mainImg');
+        if (main) main.src = first.dataset.src;
+      }
+    };
+    sel.addEventListener('change', apply);
+    apply();
+  })();
+
   // qty steppers
   document.querySelectorAll('.qty-stepper').forEach(function (s) {
     var input = s.querySelector('input');
