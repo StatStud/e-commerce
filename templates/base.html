@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}{{ setting('store_name') }} — Baseball & Softball Drip{% endblock %}</title>
+<link rel="icon" href="{{ url_for('static', filename='img/logo.png') }}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+{% if setting('announcement') %}
+<div class="announce">{{ setting('announcement') }}</div>
+{% endif %}
+
+<header class="nav-wrap">
+  <nav class="nav container">
+    <a class="brand" href="{{ url_for('home') }}">
+      <img src="{{ url_for('static', filename='img/logo.png') }}" alt="{{ setting('store_name') }} logo">
+      <span>Diamond<b>Dripp</b></span>
+    </a>
+    <button class="nav-toggle" aria-label="Menu" onclick="document.body.classList.toggle('nav-open')">☰</button>
+    <div class="nav-links">
+      <a href="{{ url_for('shop') }}" class="{{ 'on' if request.endpoint=='shop' and not request.args.get('category') }}">Shop all</a>
+      {% for c in categories %}
+      <a href="{{ url_for('shop', category=c) }}" class="{{ 'on' if request.args.get('category')==c }}">{{ c }}</a>
+      {% endfor %}
+    </div>
+    <div class="nav-actions">
+      <form class="nav-search" action="{{ url_for('shop') }}" method="get">
+        <input type="search" name="q" placeholder="Search gear…" value="{{ request.args.get('q','') }}">
+      </form>
+      <a href="{{ url_for('wishlist_view') }}" title="Saved for later" class="icon-link">♡</a>
+      <a href="{{ url_for('account') if user else url_for('login') }}" title="Account" class="icon-link">
+        {{ '⚾' if user else '👤' }}
+      </a>
+      <a href="{{ url_for('view_cart') }}" class="cart-link" title="Cart">
+        Cart <span class="cart-count" id="cartCount">{{ cart_count }}</span>
+      </a>
+    </div>
+  </nav>
+  <div class="drip-edge" aria-hidden="true">
+    <svg viewBox="0 0 1200 28" preserveAspectRatio="none">
+      <path d="M0,0 H1200 V6 q-20,0 -20,10 q0,12 -12,12 q-12,0 -12,-12 q0,-8 -16,-8 H1020 q-16,0 -16,14 q0,14 -14,14 q-14,0 -14,-14 q0,-14 -18,-14 H760 q-18,0 -18,9 q0,16 -13,16 q-13,0 -13,-16 q0,-9 -20,-9 H520 q-22,0 -22,12 q0,13 -12,13 q-12,0 -12,-13 q0,-12 -20,-12 H280 q-18,0 -18,15 q0,13 -13,13 q-13,0 -13,-13 q0,-15 -18,-15 H60 q-16,0 -16,8 q0,11 -11,11 q-11,0 -11,-11 q0,-8 -22,-8 Z" fill="currentColor"/>
+    </svg>
+  </div>
+</header>
+
+{% with msgs = get_flashed_messages(with_categories=true) %}
+  {% if msgs %}
+  <div class="flash-stack container">
+    {% for cat, m in msgs %}
+      <div class="flash flash-{{ cat }}">{{ m }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+{% endwith %}
+
+<main>
+{% block content %}{% endblock %}
+</main>
+
+<footer class="footer">
+  <div class="container footer-grid">
+    <div>
+      <img class="footer-logo" src="{{ url_for('static', filename='img/logo.png') }}" alt="">
+      <p class="muted">{{ setting('about_text')[:120] }}…</p>
+    </div>
+    <div>
+      <h4>Shop</h4>
+      <a href="{{ url_for('shop') }}">All gear</a>
+      {% for c in categories %}<a href="{{ url_for('shop', category=c) }}">{{ c }}</a>{% endfor %}
+    </div>
+    <div>
+      <h4>Help</h4>
+      <a href="{{ url_for('view_cart') }}">Cart</a>
+      <a href="{{ url_for('wishlist_view') }}">Saved for later</a>
+      <a href="{{ url_for('account') if user else url_for('login') }}">Account</a>
+    </div>
+    <div>
+      <h4>Contact</h4>
+      <a href="mailto:{{ setting('contact_email') }}">{{ setting('contact_email') }}</a>
+      <a href="https://instagram.com/{{ setting('instagram')|replace('@','') }}" target="_blank" rel="noopener">{{ setting('instagram') }}</a>
+    </div>
+  </div>
+  <div class="footer-bottom container">
+    <span>© {{ setting('store_name') }} — every day is game day.</span>
+    <a href="{{ url_for('admin_login') }}" class="muted">Store admin</a>
+  </div>
+</footer>
+
+<div id="toast" class="toast" role="status"></div>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
