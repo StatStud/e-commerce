@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Create account — {{ setting('store_name') }}{% endblock %}
+{% block content %}
+<section class="container section auth">
+  <div class="auth-card">
+    <h1 class="chrome-text">Create account</h1>
+    <p class="muted small">Email verification is in test mode — your account activates instantly.</p>
+    <form method="post">
+      <label>Name<input name="name" value="{{ name or '' }}"></label>
+      <label>Email<input type="email" name="email" required value="{{ email or '' }}"></label>
+      <label>Password (6+ characters)<input type="password" name="password" required minlength="6"></label>
+      <button class="btn btn-primary btn-block">Create account</button>
+    </form>
+    <p class="muted center">Already have one? <a href="{{ url_for('login') }}">Sign in</a></p>
+  </div>
+</section>
+{% endblock %}
