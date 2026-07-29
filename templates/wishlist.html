@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Saved for later — {{ setting('store_name') }}{% endblock %}
+{% block content %}
+<section class="container section">
+  <h1 class="chrome-text">Saved for later</h1>
+  {% if not user %}<p class="muted">Saved items live in this browser for now — <a href="{{ url_for('register') }}">create an account</a> to keep them everywhere.</p>{% endif %}
+  {% if items %}
+  <div class="cart-lines">
+    {% for it in items %}
+    <div class="cart-line">
+      <a class="cart-thumb" href="{{ url_for('product', slug=it.p.slug) }}">
+        {% if it.img %}<img src="{{ url_for('pimg', filename=it.img) }}" alt="">{% endif %}
+      </a>
+      <div class="cart-line-info">
+        <a href="{{ url_for('product', slug=it.p.slug) }}"><strong>{{ it.p.name }}</strong></a>
+        {% if it.opts %}
+        <p class="muted small">{% for k,v in it.opts.items() %}{{ k }}: {{ v }}{{ " · " if not loop.last }}{% endfor %}</p>
+        {% endif %}
+        <p class="price">{{ it.p.price|money }}</p>
+      </div>
+      <form method="post" action="{{ url_for('wishlist_to_cart') }}">
+        <input type="hidden" name="wid" value="{{ it.wid }}">
+        <button class="btn btn-ghost">Move to cart</button>
+      </form>
+      <form method="post" action="{{ url_for('wishlist_remove') }}">
+        <input type="hidden" name="wid" value="{{ it.wid }}">
+        <button class="x-btn" title="Remove">✕</button>
+      </form>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty"><p>Nothing saved yet. Tap ♡ on any product to keep it here.</p></div>
+  {% endif %}
+</section>
+{% endblock %}
