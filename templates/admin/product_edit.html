@@ -1,0 +1,69 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<a class="muted" href="{{ url_for('admin_products') }}">← All products</a>
+<h1>{{ 'Edit: ' + p.name if p else 'New product' }}</h1>
+<form method="post" enctype="multipart/form-data" class="settings-form">
+  <div class="form-row">
+    <label>Name<input name="name" required value="{{ p.name if p else '' }}"></label>
+    <label>Category<input name="category" list="cats" value="{{ p.category if p else '' }}" placeholder="Necklaces"></label>
+    <datalist id="cats">{% for c in categories %}<option value="{{ c }}">{% endfor %}</datalist>
+  </div>
+  <div class="form-row">
+    <label>Price ($)<input name="price" type="number" step="0.01" min="0" required value="{{ p.price if p else '' }}"></label>
+    <label>Compare-at price ($, optional — shows a strikethrough)<input name="compare_price" type="number" step="0.01" min="0" value="{{ p.compare_price if p and p.compare_price else '' }}"></label>
+    <label>Stock<input name="stock" type="number" min="0" value="{{ p.stock if p else 10 }}"></label>
+  </div>
+  <div class="form-row">
+    <label>Badge (e.g. "Best seller", optional)<input name="badge" value="{{ p.badge if p else '' }}"></label>
+    <label>Sort order (lower = first)<input name="sort" type="number" value="{{ p.sort if p else 100 }}"></label>
+    <label>URL slug<input name="slug" value="{{ p.slug if p else '' }}" placeholder="auto from name"></label>
+  </div>
+  <div class="form-row">
+    <label>Size chart (added to the end of the photo gallery automatically)
+      <select name="size_chart">
+        <option value="none"  {{ 'selected' if not p or p.size_chart == 'none' }}>None</option>
+        <option value="youth" {{ 'selected' if p and p.size_chart == 'youth' }}>Youth</option>
+        <option value="adult" {{ 'selected' if p and p.size_chart == 'adult' }}>Adult</option>
+        <option value="both"  {{ 'selected' if p and p.size_chart == 'both' }}>Youth + Adult</option>
+      </select>
+    </label>
+  </div>
+  <label class="check-label"><input type="checkbox" name="active" {{ 'checked' if not p or p.active }}> Visible in store</label>
+  <label class="check-label"><input type="checkbox" name="featured" {{ 'checked' if p and p.featured }}> Featured on homepage</label>
+  <label>Description (blank line between paragraphs; start lines with "• " for a bullet list)
+    <textarea name="description" rows="8">{{ p.description if p else '' }}</textarea></label>
+  <label>Options — one line per option, format: <code>Option name: choice 1, choice 2, choice 3</code>
+    <textarea name="options_text" rows="4" placeholder="Size: Youth Small, Youth Medium, Adult Small">{{ options_text }}</textarea></label>
+  <label>Add images (you can select several)
+    <input type="file" name="images" multiple accept="image/*"></label>
+  <button class="btn btn-primary">Save product</button>
+</form>
+{% if images %}
+<h3 style="margin-top:28px">Images <span class="muted small">(first image = main photo)</span></h3>
+<div class="admin-img-grid">
+  {% for img in images %}
+  <div class="admin-img">
+    <img src="{{ url_for('pimg', filename=img.filename) }}" alt="">
+    <div class="admin-img-actions">
+      {% if not loop.first %}
+      <form method="post" action="{{ url_for('admin_image_primary', img_id=img.id) }}">
+        <button class="btn btn-ghost btn-sm">Make main</button>
+      </form>
+      {% endif %}
+      <form method="post" action="{{ url_for('admin_image_delete', img_id=img.id) }}"
+            onsubmit="return confirm('Delete this image?')">
+        <button class="x-btn">✕</button>
+      </form>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+{% if p %}
+<hr class="admin-hr">
+<form method="post" action="{{ url_for('admin_product_delete', pid=p.id) }}"
+      onsubmit="return confirm('Delete this product permanently?')">
+  <button class="btn btn-danger">Delete product</button>
+</form>
+{% endif %}
+{% endblock %}
