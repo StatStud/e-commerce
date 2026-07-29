@@ -1,0 +1,14 @@
+<a class="card" href="{{ url_for('product', slug=p.slug) }}">
+  <div class="card-img">
+    {% if p.badge %}<span class="badge">{{ p.badge }}</span>{% endif %}
+    {% if p.img %}<img src="{{ url_for('pimg', filename=p.img) }}" alt="{{ p.name }}" loading="lazy">{% endif %}
+  </div>
+  <div class="card-body">
+    <span class="card-cat">{{ p.category }}</span>
+    <h3>{{ p.name }}</h3>
+    <p class="price">
+      {{ p.price|money }}
+      {% if p.compare_price and p.compare_price > p.price %}<s>{{ p.compare_price|money }}</s>{% endif %}
+    </p>
+  </div>
+</a>
