@@ -1,0 +1,17 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<h1>Orders</h1>
+{% if orders %}
+<table class="admin-table">
+  <tr><th>Order</th><th>Customer</th><th>Email</th><th>Total</th><th>Status</th><th>Date</th></tr>
+  {% for o in orders %}
+  <tr>
+    <td><a href="{{ url_for('admin_order_detail', oid=o.id) }}">{{ o.order_no }}</a></td>
+    <td>{{ o.name }}</td><td>{{ o.email }}</td><td>{{ o.total|money }}</td>
+    <td><span class="status-pill">{{ o.status }}</span></td>
+    <td>{{ o.created[:16] }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}<p class="muted">No orders yet.</p>{% endif %}
+{% endblock %}
