@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block content %}
+
+<section class="hero">
+  <div class="container hero-grid">
+    <div class="hero-copy">
+      <p class="eyebrow">{{ setting('hero_eyebrow') }}</p>
+      <h1 class="chrome-text">{{ setting('hero_title') }}</h1>
+      <p class="hero-sub">{{ setting('hero_sub') }}</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="{{ url_for('shop') }}">{{ setting('hero_cta') }}</a>
+        <a class="btn btn-ghost" href="{{ url_for('shop', category='Necklaces') }}">Team chains</a>
+      </div>
+      <ul class="hero-points">
+        <li>Youth &amp; adult sizes</li>
+        <li>Ships in 1–2 days</li>
+        <li>Free shipping over ${{ setting('free_ship_threshold') }}</li>
+      </ul>
+    </div>
+    <div class="hero-art">
+      <div class="hero-glow"></div>
+      <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Diamond Dripp emblem">
+    </div>
+  </div>
+</section>
+
+<section class="container section">
+  <div class="section-head">
+    <h2>Shop by category</h2>
+  </div>
+  <div class="cat-grid">
+    {% for c in categories %}
+    <a class="cat-tile" href="{{ url_for('shop', category=c) }}">
+      <span>{{ c }}</span><span class="cat-arrow">→</span>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="container section">
+  <div class="section-head">
+    <h2>The lineup</h2>
+    <a class="link" href="{{ url_for('shop') }}">View all →</a>
+  </div>
+  <div class="product-grid">
+    {% for p in featured %}
+      {% include "_card.html" %}
+    {% endfor %}
+  </div>
+</section>
+
+{% if setting('show_story') == '1' %}
+<section class="story">
+  <div class="container story-inner">
+    <h2 class="chrome-text">{{ setting('about_title') }}</h2>
+    <p>{{ setting('about_text') }}</p>
+  </div>
+</section>
+{% endif %}
+
+{% endblock %}
