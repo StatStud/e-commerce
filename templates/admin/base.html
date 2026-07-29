@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}Admin — Diamond Dripp{% endblock %}</title>
+<link rel="icon" href="{{ url_for('static', filename='img/logo.png') }}">
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="admin-body">
+<div class="admin-shell">
+  <aside class="admin-side">
+    <a class="brand" href="{{ url_for('home') }}">
+      <img src="{{ url_for('static', filename='img/logo.png') }}" alt=""><span>Admin</span>
+    </a>
+    <nav>
+      <a href="{{ url_for('admin_dashboard') }}" class="{{ 'on' if request.endpoint=='admin_dashboard' }}">Dashboard</a>
+      <a href="{{ url_for('admin_products') }}" class="{{ 'on' if 'product' in (request.endpoint or '') }}">Products</a>
+      <a href="{{ url_for('admin_orders') }}" class="{{ 'on' if 'order' in (request.endpoint or '') }}">Orders</a>
+      <a href="{{ url_for('admin_settings') }}" class="{{ 'on' if request.endpoint=='admin_settings' }}">Site settings</a>
+    </nav>
+    <div class="admin-side-foot">
+      <a href="{{ url_for('home') }}">← View store</a>
+      <a href="{{ url_for('admin_logout') }}">Sign out</a>
+    </div>
+  </aside>
+  <main class="admin-main">
+    {% with msgs = get_flashed_messages(with_categories=true) %}
+      {% for cat, m in msgs %}<div class="flash flash-{{ cat }}">{{ m }}</div>{% endfor %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+</div>
+</body>
+</html>
