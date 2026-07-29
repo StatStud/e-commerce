@@ -1,0 +1,33 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<h1>Site settings</h1>
+<p class="muted">Everything here updates the storefront instantly — no code needed.</p>
+<form method="post" class="settings-form">
+  <h3>Store</h3>
+  <label>Store name<input name="store_name" value="{{ v.store_name }}"></label>
+  <label>Announcement bar (leave blank to hide)<input name="announcement" value="{{ v.announcement }}"></label>
+  <label>Contact email<input name="contact_email" value="{{ v.contact_email }}"></label>
+  <label>Instagram handle<input name="instagram" value="{{ v.instagram }}"></label>
+  <h3>Homepage hero</h3>
+  <label>Eyebrow (small text above title)<input name="hero_eyebrow" value="{{ v.hero_eyebrow }}"></label>
+  <label>Title<input name="hero_title" value="{{ v.hero_title }}"></label>
+  <label>Subtitle<textarea name="hero_sub" rows="2">{{ v.hero_sub }}</textarea></label>
+  <label>Button text<input name="hero_cta" value="{{ v.hero_cta }}"></label>
+  <h3>Story section</h3>
+  <label class="check-label"><input type="checkbox" name="show_story" {{ 'checked' if v.show_story=='1' }}> Show story section on homepage</label>
+  <label>Story title<input name="about_title" value="{{ v.about_title }}"></label>
+  <label>Story text<textarea name="about_text" rows="3">{{ v.about_text }}</textarea></label>
+  <h3>Shipping</h3>
+  <div class="form-row">
+    <label>Flat shipping rate ($)<input name="shipping_flat" value="{{ v.shipping_flat }}"></label>
+    <label>Free shipping over ($)<input name="free_ship_threshold" value="{{ v.free_ship_threshold }}"></label>
+  </div>
+  <button class="btn btn-primary">Save settings</button>
+</form>
+<hr class="admin-hr">
+<h3>Change admin password</h3>
+<form method="post" action="{{ url_for('admin_password') }}" class="settings-form">
+  <label>New password (6+ characters)<input type="password" name="new_password" minlength="6" required></label>
+  <button class="btn btn-ghost">Change password</button>
+</form>
+{% endblock %}
