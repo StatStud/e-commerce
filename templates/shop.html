@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Shop — {{ setting('store_name') }}{% endblock %}
+{% block content %}
+<section class="container section">
+  <div class="shop-head">
+    <h1 class="chrome-text">{{ cat if cat else "Shop all gear" }}</h1>
+    {% if q %}<p class="muted">Results for “{{ q }}”</p>{% endif %}
+    <div class="chip-row">
+      <a class="chip {{ 'on' if not cat }}" href="{{ url_for('shop') }}">All</a>
+      {% for c in categories %}
+      <a class="chip {{ 'on' if cat==c }}" href="{{ url_for('shop', category=c) }}">{{ c }}</a>
+      {% endfor %}
+    </div>
+  </div>
+  {% if products %}
+  <div class="product-grid">
+    {% for p in products %}{% include "_card.html" %}{% endfor %}
+  </div>
+  {% else %}
+  <div class="empty">
+    <p>Nothing matched. Try a different search, or <a href="{{ url_for('shop') }}">browse everything</a>.</p>
+  </div>
+  {% endif %}
+</section>
+{% endblock %}
