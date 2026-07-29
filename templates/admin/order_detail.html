@@ -1,0 +1,35 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<a class="muted" href="{{ url_for('admin_orders') }}">← All orders</a>
+<h1>{{ o.order_no }}</h1>
+<div class="order-grid">
+  <div>
+    <h3>Items</h3>
+    {% for it in items %}
+    <div class="sum-row small-line">
+      <span>{{ it.qty }}× {{ it.name }}{% if it.opts %} <em class="muted">({% for k,v in it.opts.items() %}{{ k }}: {{ v }}{{ ", " if not loop.last }}{% endfor %})</em>{% endif %}</span>
+      <span>{{ (it.price * it.qty)|money }}</span>
+    </div>
+    {% endfor %}
+    <div class="sum-row"><span>Subtotal</span><span>{{ o.subtotal|money }}</span></div>
+    <div class="sum-row"><span>Shipping</span><span>{{ o.shipping|money }}</span></div>
+    <div class="sum-row total"><span>Total</span><span>{{ o.total|money }}</span></div>
+    <p class="muted small">Payment: {{ o.payment_status }}</p>
+  </div>
+  <div>
+    <h3>Customer</h3>
+    <p>{{ o.name }}<br>{{ o.email }}{% if o.phone %}<br>{{ o.phone }}{% endif %}</p>
+    <h3>Ship to</h3>
+    <p>{{ o.address }}<br>{{ o.city }}, {{ o.state }} {{ o.zip }}</p>
+    <h3>Status</h3>
+    <form method="post" class="status-form">
+      <select name="status">
+        {% for s in ['New','Processing','Shipped','Delivered','Cancelled','Refunded'] %}
+        <option {{ 'selected' if o.status==s }}>{{ s }}</option>
+        {% endfor %}
+      </select>
+      <button class="btn btn-primary">Update</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
